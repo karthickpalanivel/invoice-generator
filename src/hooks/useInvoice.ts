@@ -1,28 +1,35 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { InvoiceData, LineItem } from "@/types/index";
-import { EMPTY_DATA, EXAMPLE_DATA, numToWords } from "@/lib/utils";
+import { EMPTY_DATA, EXAMPLE_DATA } from "@/lib/utils";
 
 export function useInvoice() {
   const [data, setData] = useState<InvoiceData>(EMPTY_DATA);
 
-  // Auto-calculation Effect
-  useEffect(() => {
-    const { grandTotal } = calculateTotals();
-    if (grandTotal > 0) {
-      const wholePart = Math.floor(grandTotal);
-      const decimalPart = Math.round((grandTotal - wholePart) * 100);
-      let text = "INR " + numToWords(wholePart);
-      if (decimalPart > 0) text += " and " + numToWords(decimalPart) + " Paise";
-      text += " Only";
-      setData((prev) => ({ ...prev, amountInWords: text }));
-    }
-  }, [data.items]);
+  const calculateTotals = () => {
+    let taxableValue = 0;
+    let totalTax = 0;
+    let grandTotal = 0;
 
-  const updateField = (field: keyof InvoiceData, value: any) => {
+    data.items.forEach((item) => {
+      const amount = item.quantity * item.rate;
+      const tax = amount * ((item.cgstRate + item.sgstRate) / 100);
+      taxableValue += amount;
+      totalTax += tax;
+      grandTotal += amount + tax;
+    });
+
+    return { taxableValue, totalTax, grandTotal };
+  };
+
+  const updateField = <K extends keyof InvoiceData>(field: K, value: InvoiceData[K]) => {
     setData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const updateItem = (index: number, field: keyof LineItem, value: any) => {
+  const updateItem = <K extends keyof LineItem>(
+    index: number,
+    field: K,
+    value: LineItem[K],
+  ) => {
     const newItems = [...data.items];
     newItems[index] = { ...newItems[index], [field]: value };
     setData((prev) => ({ ...prev, items: newItems }));
@@ -52,20 +59,6 @@ export function useInvoice() {
       ...prev,
       items: prev.items.filter((_, i) => i !== index),
     }));
-  };
-
-  const calculateTotals = () => {
-    let taxableValue = 0,
-      totalTax = 0,
-      grandTotal = 0;
-    data.items.forEach((item) => {
-      const amount = item.quantity * item.rate;
-      const tax = amount * ((item.cgstRate + item.sgstRate) / 100);
-      taxableValue += amount;
-      totalTax += tax;
-      grandTotal += amount + tax;
-    });
-    return { taxableValue, totalTax, grandTotal };
   };
 
   const loadExample = () => {
