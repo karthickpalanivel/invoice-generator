@@ -1,5 +1,4 @@
-# 🧾 GST Invoice Generator
-
+# 🧾 Testing ChatGPT's codex  
 A one-page **GST invoice generator** built using **Next.js (App Router)** and **React + TypeScript**.
 
 The application provides a split-screen workflow:
