@@ -7,18 +7,28 @@ export function useInvoice() {
 
   const calculateTotals = () => {
     let taxableValue = 0;
-    let totalTax = 0;
+    let cgstAmount = 0;
+    let sgstAmount = 0;
     let grandTotal = 0;
 
     data.items.forEach((item) => {
       const amount = item.quantity * item.rate;
-      const tax = amount * ((item.cgstRate + item.sgstRate) / 100);
+      const itemCgst = amount * (item.cgstRate / 100);
+      const itemSgst = amount * (item.sgstRate / 100);
+
       taxableValue += amount;
-      totalTax += tax;
-      grandTotal += amount + tax;
+      cgstAmount += itemCgst;
+      sgstAmount += itemSgst;
+      grandTotal += amount + itemCgst + itemSgst;
     });
 
-    return { taxableValue, totalTax, grandTotal };
+    return {
+      taxableValue,
+      cgstAmount,
+      sgstAmount,
+      totalTax: cgstAmount + sgstAmount,
+      grandTotal,
+    };
   };
 
   const updateField = <K extends keyof InvoiceData>(field: K, value: InvoiceData[K]) => {
@@ -46,7 +56,7 @@ export function useInvoice() {
           hsn: "",
           quantity: 0,
           rate: 0,
-          per: "Nos",
+          per: "",
           cgstRate: 9,
           sgstRate: 9,
         },

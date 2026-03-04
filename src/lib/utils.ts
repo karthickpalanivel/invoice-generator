@@ -47,7 +47,7 @@ export const EMPTY_DATA: InvoiceData = {
       hsn: "",
       quantity: 0,
       rate: 0,
-      per: "Nos",
+      per: "",
       cgstRate: 9,
       sgstRate: 9,
     },
