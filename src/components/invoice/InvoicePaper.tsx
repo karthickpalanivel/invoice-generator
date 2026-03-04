@@ -1,18 +1,27 @@
 import React from "react";
 import { InvoiceData } from "@/types";
 
-const formatMoney = (value: number) => value.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const formatMoney = (value: number) =>
+  value.toLocaleString("en-IN", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
 
 const InvoicePaper = ({
   data,
   totals,
 }: {
   data: InvoiceData;
-  totals: { taxableValue: number; totalTax: number; grandTotal: number };
+  totals: {
+    taxableValue: number;
+    cgstAmount: number;
+    sgstAmount: number;
+    totalTax: number;
+    grandTotal: number;
+  };
 }) => {
   const firstItem = data.items[0];
-  const cgstAmount = totals.totalTax / 2;
-  const sgstAmount = totals.totalTax / 2;
+  const perUnit = firstItem?.per === "Nos" ? "" : firstItem?.per;
 
   return (
     <div className="bg-white shadow-xl origin-top scale-[0.42] sm:scale-[0.56] md:scale-[0.75] lg:scale-100 transition-transform print:scale-100 print:shadow-none">
@@ -112,39 +121,43 @@ const InvoicePaper = ({
               <td className="border border-black p-1 align-top">
                 <div>{firstItem?.description}</div>
                 <div className="h-14" />
-                <div className="text-right">CGST@{firstItem?.cgstRate ?? 0}%</div>
-                <div className="text-right">SGST@{firstItem?.sgstRate ?? 0}%</div>
+                <div className="text-right text-[13px]">CGST@{firstItem?.cgstRate ?? 0}%</div>
+                <div className="text-right text-[13px]">SGST@{firstItem?.sgstRate ?? 0}%</div>
               </td>
               <td className="border border-black p-1 align-top">{firstItem?.hsn}</td>
               <td className="border border-black p-1 align-top">{firstItem?.quantity}</td>
-              <td className="border border-black p-1 align-top text-right">{firstItem ? firstItem.rate.toLocaleString("en-IN") : ""}</td>
-              <td className="border border-black p-1 align-top">{firstItem?.per}</td>
+              <td className="border border-black p-1 align-top text-right">
+                {firstItem ? firstItem.rate.toLocaleString("en-IN") : ""}
+              </td>
+              <td className="border border-black p-1 align-top">{perUnit}</td>
               <td className="border border-black p-1 align-top text-right">
                 {firstItem && <div>{formatMoney(firstItem.quantity * firstItem.rate)}</div>}
-                <div className="border-t border-black/40 mt-6 pt-1">{formatMoney(totals.taxableValue)}</div>
-                <div>{formatMoney(cgstAmount)}</div>
-                <div>{formatMoney(sgstAmount)}</div>
+                <div className="border-t border-black/40 mt-6 pt-1 text-[13px]">{formatMoney(totals.taxableValue)}</div>
+                <div className="text-[13px]">{formatMoney(totals.cgstAmount)}</div>
+                <div className="text-[13px]">{formatMoney(totals.sgstAmount)}</div>
               </td>
             </tr>
             <tr>
               <td className="border border-black p-1" />
-              <td className="border border-black p-1 text-right text-[31px] font-bold">Total</td>
+              <td className="border border-black p-1 text-right text-[15px] font-bold">Total</td>
               <td className="border border-black p-1" />
-              <td className="border border-black p-1 font-bold">{firstItem?.quantity} {firstItem?.per}</td>
+              <td className="border border-black p-1 font-bold">
+                {firstItem?.quantity} {perUnit}
+              </td>
               <td className="border border-black p-1" />
               <td className="border border-black p-1" />
-              <td className="border border-black p-1 text-right text-[35px] font-bold">₹ {formatMoney(totals.grandTotal)}</td>
+              <td className="border border-black p-1 text-right text-[15px] font-bold">₹ {formatMoney(totals.grandTotal)}</td>
             </tr>
           </tbody>
         </table>
 
-        <div className="border-l border-r border-b border-black px-2 py-1 text-right text-[33px]">E. &amp; E.O</div>
+        <div className="border-l border-r border-b border-black px-2 py-1 text-right text-[14px]">E. &amp; E.O</div>
 
-        <div className="border-l border-r border-b border-black p-2 font-bold text-[25px]">
+        <div className="border-l border-r border-b border-black p-2 font-bold text-[15px]">
           {data.amountInWords || "INR TWO LAKH NINETY THOUSAND SIX HUNDRED AND FORTY EIGHT ONLY"}
         </div>
 
-        <table className="w-full border-collapse text-[31px]">
+        <table className="w-full border-collapse">
           <thead>
             <tr>
               <th className="border border-black p-1" rowSpan={2}>Taxable value</th>
@@ -164,27 +177,27 @@ const InvoicePaper = ({
             <tr>
               <td className="border border-black p-1 text-right">{formatMoney(totals.taxableValue)}</td>
               <td className="border border-black p-1 text-center">{firstItem?.cgstRate ?? 0}%</td>
-              <td className="border border-black p-1 text-right">{formatMoney(cgstAmount)}</td>
+              <td className="border border-black p-1 text-right">{formatMoney(totals.cgstAmount)}</td>
               <td className="border border-black p-1 text-center">{firstItem?.sgstRate ?? 0}%</td>
-              <td className="border border-black p-1 text-right">{formatMoney(sgstAmount)}</td>
+              <td className="border border-black p-1 text-right">{formatMoney(totals.sgstAmount)}</td>
               <td className="border border-black p-1 text-right font-bold">{formatMoney(totals.grandTotal)}</td>
             </tr>
             <tr>
               <td className="border border-black p-1 text-right font-bold">Total&nbsp;&nbsp;{formatMoney(totals.taxableValue)}</td>
               <td className="border border-black p-1" />
-              <td className="border border-black p-1 text-right">{formatMoney(cgstAmount)}</td>
+              <td className="border border-black p-1 text-right">{formatMoney(totals.cgstAmount)}</td>
               <td className="border border-black p-1" />
-              <td className="border border-black p-1 text-right">{formatMoney(sgstAmount)}</td>
+              <td className="border border-black p-1 text-right">{formatMoney(totals.sgstAmount)}</td>
               <td className="border border-black p-1 text-right font-bold">{formatMoney(totals.grandTotal)}</td>
             </tr>
           </tbody>
         </table>
 
-        <div className="border-l border-r border-b border-black p-2 text-[32px]">
+        <div className="border-l border-r border-b border-black p-2 text-[14px]">
           Tax Amount (in words) : <span className="font-bold">{data.amountInWords.replace(/^INR\s*/i, "")}</span>
         </div>
 
-        <div className="border-l border-r border-b border-black grid grid-cols-2 min-h-[265px] text-[32px]">
+        <div className="border-l border-r border-b border-black grid grid-cols-2 min-h-[265px]">
           <div />
           <div className="border-l border-black p-2">
             <div>A/c Holder’s Name : <span className="font-bold">{data.accountHolder}</span></div>
