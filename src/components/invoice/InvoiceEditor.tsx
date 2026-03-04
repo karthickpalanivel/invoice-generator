@@ -291,6 +291,40 @@ const InvoiceEditor = ({
                     {(item.quantity * item.rate).toLocaleString("en-IN")}
                   </div>
                 </div>
+                <div className="col-span-6 md:col-span-3">
+                  <label className="block text-xs font-medium text-gray-500 mb-1">
+                    CGST %
+                  </label>
+                  <input
+                    type="number"
+                    className="w-full p-2 text-sm border rounded"
+                    value={item.cgstRate}
+                    onChange={(e) =>
+                      actions.updateItem(
+                        index,
+                        "cgstRate",
+                        parseFloat(e.target.value) || 0,
+                      )
+                    }
+                  />
+                </div>
+                <div className="col-span-6 md:col-span-3">
+                  <label className="block text-xs font-medium text-gray-500 mb-1">
+                    SGST %
+                  </label>
+                  <input
+                    type="number"
+                    className="w-full p-2 text-sm border rounded"
+                    value={item.sgstRate}
+                    onChange={(e) =>
+                      actions.updateItem(
+                        index,
+                        "sgstRate",
+                        parseFloat(e.target.value) || 0,
+                      )
+                    }
+                  />
+                </div>
               </div>
             </div>
           ))}
